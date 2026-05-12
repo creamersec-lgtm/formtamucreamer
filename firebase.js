@@ -12,12 +12,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_AUTH_DOMAIN",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
-  appId: "PASTE_APP_ID"
+ apiKey: "AIzaSyApEMFz3QhWOVI_CyEJJIqB_pyXEgjRNxc",
+  authDomain: "formtamu-d750c.firebaseapp.com",
+  projectId: "formtamu-d750c",
+  storageBucket: "formtamu-d750c.firebasestorage.app",
+  messagingSenderId: "812624536603",
+  appId: "1:812624536603:web:587f9d19794d42cdf584be"
 };
 
 const app = initializeApp(firebaseConfig);
