@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXTERNAL CHECK OUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h2 class="form-title">EXTERNAL CHECK OUT</h2>
+
+<div class="form-group">
+<label>Visitor ID</label>
+<input type="text" id="searchId">
+</div>
+
+<button class="btn red" id="searchBtn">
+SEARCH
+</button>
+
+<div id="result"></div>
+
+</div>
+
+<div class="popup hidden" id="popup">
+<div class="popup-box">
+
+<h2>CHECK OUT BERHASIL</h2>
+
+<p id="popupText"></p>
+
+<div class="popup-time" id="popupTime"></div>
+
+<p>Silakan tulis jam keluar di form kunjungan.</p>
+
+<button class="btn red" onclick="window.location.href='index.html'">
+OK
+</button>
+
+</div>
+</div>
+
+<script type="module">
+
+import {
+db,
+collection,
+getDocs,
+query,
+where,
+updateDoc,
+doc
+} from './firebase.js';
+
+let currentDocId = null;
+let currentData = null;
+
+document.getElementById('searchBtn')
+.addEventListener('click', async ()=>{
+
+const searchValue =
+document.getElementById('searchId').value;
+
+const q = query(
+collection(db,'external_visitors'),
+where('visitor_id','==',searchValue),
+where('status','==','IN')
+);
+
+const snapshot = await getDocs(q);
+
+if(snapshot.empty){
+alert('Data tidak ditemukan');
+return;
+}
+
+snapshot.forEach((item)=>{
+
+currentDocId = item.id;
+currentData = item.data();
+
+document.getElementById('result').innerHTML = `
+<div class="info-box">
+
+<p><b>Nama:</b> ${
+currentData.nama
+}</p>
+
+<p><b>Jam Masuk:</b> ${
+currentData.jam_masuk
+}</p>
+
+<button class="btn red" id="checkoutBtn">
+CHECK OUT
+</button>
+
+</div>
+`;
+
+document.getElementById('checkoutBtn')
+.addEventListener('click', processCheckout);
+
+});
+
+});
+
+async function processCheckout(){
+
+const jamKeluar =
+new Date().toLocaleTimeString();
+
+const ref = doc(
+db,
+'external_visitors',
+currentDocId
+);
+
+await updateDoc(ref,{
+jam_keluar: jamKeluar,
+status:'OUT'
+});
+
+document.getElementById('popup')
+.classList.remove('hidden');
+
+document.getElementById('popupText')
+.innerHTML =
+'Visitor ID : <b>' +
+currentData.visitor_id +
+'</b>';
+
+document.getElementById('popupTime')
+.innerText = jamKeluar;
+
+}
+
+</script>
+
+</body>
+</html>

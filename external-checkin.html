@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>External Check In</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h2 class="form-title">EXTERNAL CHECK IN</h2>
+
+<div class="form-group">
+<label>Visitor ID</label>
+<input type="text" id="visitor_id">
+</div>
+
+<div class="form-group">
+<label>Visitor Ground</label>
+<input type="text" id="visitor_ground">
+</div>
+
+<div class="form-group">
+<label>Nama Jelas</label>
+<input type="text" id="nama">
+</div>
+
+<div class="form-group">
+<label>Kartu Identitas Jaminan</label>
+<select id="jaminan">
+<option value="">Pilih</option>
+<option>KTP</option>
+<option>SIM</option>
+<option>ID CARD</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Nomor Plat Kendaraan</label>
+<input type="text" id="plat">
+</div>
+
+<div class="form-group">
+<label>Perusahaan Asal</label>
+<input type="text" id="perusahaan">
+</div>
+
+<div class="form-group">
+<label>Alamat Sesuai KTP</label>
+<textarea id="alamat"></textarea>
+</div>
+
+<div class="form-group">
+<label>Bertemu Dengan / PIC</label>
+<input type="text" id="pic">
+</div>
+
+<div class="form-group">
+<label>Keperluan</label>
+<textarea id="keperluan"></textarea>
+</div>
+
+<button class="btn green" id="submitBtn" disabled>
+CHECK IN
+</button>
+
+</div>
+
+<div class="popup hidden" id="popup">
+<div class="popup-box">
+<h2>CHECK IN BERHASIL</h2>
+<p id="popupText"></p>
+<div class="popup-time" id="popupTime"></div>
+
+<button class="btn green" onclick="window.location.href='index.html'">
+OK
+</button>
+
+</div>
+</div>
+
+<script type="module">
+
+import {
+db,
+collection,
+addDoc
+} from './firebase.js';
+
+const submitBtn = document.getElementById('submitBtn');
+
+const inputs = document.querySelectorAll(
+'input, textarea, select'
+);
+
+function validateForm(){
+
+let valid = true;
+
+inputs.forEach((input)=>{
+
+if(input.value.trim() === ''){
+valid = false;
+}
+
+});
+
+submitBtn.disabled = !valid;
+
+}
+
+inputs.forEach((input)=>{
+input.addEventListener('input', validateForm);
+input.addEventListener('change', validateForm);
+});
+
+submitBtn.addEventListener('click', async ()=>{
+
+const now = new Date();
+
+await addDoc(collection(db,'external_visitors'),{
+
+visitor_id:
+document.getElementById('visitor_id').value,
+
+visitor_ground:
+document.getElementById('visitor_ground').value,
+
+nama:
+document.getElementById('nama').value,
+
+jaminan:
+document.getElementById('jaminan').value,
+
+plat:
+document.getElementById('plat').value,
+
+perusahaan:
+document.getElementById('perusahaan').value,
+
+alamat:
+document.getElementById('alamat').value,
+
+pic:
+document.getElementById('pic').value,
+
+keperluan:
+document.getElementById('keperluan').value,
+
+tanggal_masuk:
+now.toLocaleDateString(),
+
+jam_masuk:
+now.toLocaleTimeString(),
+
+jam_keluar:'-',
+
+status:'IN'
+
+});
+
+document.getElementById('popup')
+.classList.remove('hidden');
+
+document.getElementById('popupText')
+.innerHTML =
+'Visitor ID : <b>' +
+document.getElementById('visitor_id').value +
+'</b>';
+
+document.getElementById('popupTime')
+.innerText =
+now.toLocaleTimeString();
+
+});
+
+</script>
+
+</body>
+</html>

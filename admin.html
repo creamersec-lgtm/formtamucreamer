@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2 class="form-title">ADMIN PANEL</h2>
+
+<div class="form-group">
+<label>Export Filter</label>
+
+<select id="exportType">
+<option value="ALL">ALL VISITOR</option>
+<option value="EXTERNAL">EXTERNAL ONLY</option>
+<option value="INTERNAL">INTERNAL ONLY</option>
+</select>
+</div>
+
+<button class="btn dark" id="exportBtn">
+EXPORT EXCEL
+</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Type</th>
+<th>Tanggal</th>
+<th>Nama</th>
+<th>ID / NIK</th>
+<th>Jam Masuk</th>
+<th>Jam Keluar</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+<script type="module">
+
+import {
+db,
+collection,
+getDocs
+} from './firebase.js';
+
+const tableBody =
+document.getElementById('tableBody');
+
+async function loadData(){
+
+const externalSnapshot =
+await getDocs(collection(db,'external_visitors'));
+
+externalSnapshot.forEach((docData)=>{
+
+const data = docData.data();
+
+tableBody.innerHTML += `
+<tr>
+<td>EXTERNAL</td>
+<td>${data.tanggal_masuk}</td>
+<td>${data.nama}</td>
+<td>${data.visitor_id}</td>
+<td>${data.jam_masuk}</td>
+<td>${data.jam_keluar}</td>
+<td class="${
+data.status === 'IN'
+? 'status-in'
+: 'status-out'
+}">
+${data.status}
+</td>
+</tr>
+`;
+
+});
+
+const internalSnapshot =
+await getDocs(collection(db,'internal_visitors'));
+
+internalSnapshot.forEach((docData)=>{
+
+const data = docData.data();
+
+tableBody.innerHTML += `
+<tr>
+<td>INTERNAL</td>
+<td>${data.tanggal_masuk}</td>
+<td>${data.nama}</td>
+<td>${data.nik}</td>
+<td>${data.jam_masuk}</td>
+<td>${data.jam_keluar}</td>
+<td class="${
+data.status === 'IN'
+? 'status-in'
+: 'status-out'
+}">
+${data.status}
+</td>
+</tr>
+`;
+
+});
+
+}
+
+loadData();
+
+document.getElementById('exportBtn')
+.addEventListener('click', async ()=>{
+
+const exportType =
+document.getElementById('exportType').value;
+
+let exportData = [];
+
+if(
+exportType === 'ALL'
+|| exportType === 'EXTERNAL'
+){
+
+const externalSnapshot =
+await getDocs(collection(db,'external_visitors'));
+
+externalSnapshot.forEach((docData)=>{
+
+const data = docData.data();
+
+exportData.push({
+
+TYPE:'EXTERNAL',
+TANGGAL:data.tanggal_masuk,
+NAMA:data.nama,
+VISITOR_ID:data.visitor_id,
+VISITOR_GROUND:data.visitor_ground,
+PERUSAHAAN:data.perusahaan,
+PIC:data.pic,
+KEPERLUAN:data.keperluan,
+JAM_MASUK:data.jam_masuk,
+JAM_KELUAR:data.jam_keluar,
+STATUS:data.status
+
+});
+
+});
+
+}
+
+if(
+exportType === 'ALL'
+|| exportType === 'INTERNAL'
+){
+
+const internalSnapshot =
+await getDocs(collection(db,'internal_visitors'));
+
+internalSnapshot.forEach((docData)=>{
+
+const data = docData.data();
+
+exportData.push({
+
+TYPE:'INTERNAL',
+TANGGAL:data.tanggal_masuk,
+NAMA:data.nama,
+NIK:data.nik,
+DEPARTEMEN:data.departemen,
+FACTORY:data.factory,
+PIC:data.pic,
+KEPERLUAN:data.keperluan,
+JAM_MASUK:data.jam_masuk,
+JAM_KELUAR:data.jam_keluar,
+STATUS:data.status
+
+});
+
+});
+
+}
+
+const worksheet =
+XLSX.utils.json_to_sheet(exportData);
+
+const workbook =
+XLSX.utils.book_new();
+
+XLSX.utils.book_append_sheet(
+workbook,
+worksheet,
+'Visitor Data'
+);
+
+let fileName = 'visitor-data.xlsx';
+
+if(exportType === 'EXTERNAL'){
+fileName = 'external-visitor.xlsx';
+}
+
+if(exportType === 'INTERNAL'){
+fileName = 'internal-visitor.xlsx';
+}
+
+XLSX.writeFile(workbook,fileName);
+
+});
+
+</script>
+
+</body>
+</html>
