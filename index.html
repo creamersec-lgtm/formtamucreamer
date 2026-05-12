@@ -33,13 +33,34 @@ EXTERNAL CHECK OUT
 INTERNAL CHECK OUT
 </a>
 
-<a href="admin.html" class="btn dark">
+<button class="btn dark" onclick="openAdmin()">
 ADMIN PANEL
-</a>
-
+</button>
 </div>
 
 </div>
+
+  <script>
+
+function openAdmin(){
+
+    const password = prompt(
+        "Masukkan Password Admin"
+    );
+
+    if(password === "Creamer1205"){
+
+        window.location.href = "admin.html";
+
+    }else{
+
+        alert("Password Salah");
+
+    }
+
+}
+
+</script>
 
 </body>
 </html>
